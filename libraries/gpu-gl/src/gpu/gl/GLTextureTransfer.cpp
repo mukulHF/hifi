@@ -35,8 +35,6 @@ GLTextureTransferHelper::GLTextureTransferHelper() {
     initialize(true, QThread::LowPriority);
     // Clean shutdown on UNIX, otherwise _canvas is freed early
     connect(qApp, &QCoreApplication::aboutToQuit, [&] { terminate(); });
-#else
-    initialize(false, QThread::LowPriority);
 #endif
 }
 
@@ -45,18 +43,23 @@ GLTextureTransferHelper::~GLTextureTransferHelper() {
     if (isStillRunning()) {
         terminate();
     }
-#else
-    terminate();
 #endif
 }
 
 void GLTextureTransferHelper::transferTexture(const gpu::TexturePointer& texturePointer) {
     GLTexture* object = Backend::getGPUObject<GLTexture>(*texturePointer);
 
+#ifdef THREADED_TEXTURE_TRANSFER
     Backend::incrementTextureGPUTransferCount();
     object->setSyncState(GLSyncState::Pending);
     Lock lock(_mutex);
     _pendingTextures.push_back(texturePointer);
+#else
+    for (object->startTransfer(); object->continueTransfer(); ) { }
+    object->finishTransfer();
+    object->_contentStamp = texturePointer->getDataStamp();
+    object->setSyncState(GLSyncState::Transferred);
+#endif
 }
 
 void GLTextureTransferHelper::setup() {
@@ -97,28 +100,13 @@ void GLTextureTransferHelper::shutdown() {
 #endif
 }
 
-void GLTextureTransferHelper::queueExecution(VoidLambda lambda) {
-    Lock lock(_mutex);
-    _pendingCommands.push_back(lambda);
-}
-
-#define MAX_TRANSFERS_PER_PASS 2
-
 bool GLTextureTransferHelper::process() {
-    // Take any new textures or commands off the queue
-    VoidLambdaList pendingCommands;
+#ifdef THREADED_TEXTURE_TRANSFER
+    // Take any new textures off the queue
     TextureList newTransferTextures;
     {
         Lock lock(_mutex);
         newTransferTextures.swap(_pendingTextures);
-        pendingCommands.swap(_pendingCommands);
-    }
-
-    if (!pendingCommands.empty()) {
-        for (auto command : pendingCommands) {
-            command();
-        }
-        glFlush();
     }
 
     if (!newTransferTextures.empty()) {
@@ -131,16 +119,11 @@ bool GLTextureTransferHelper::process() {
             _transferringTextures.push_back(texturePointer);
             _textureIterator = _transferringTextures.begin();
         }
-        _transferringTextures.sort([](const gpu::TexturePointer& a, const gpu::TexturePointer& b)->bool {
-            return a->getSize() < b->getSize();
-        });
     }
 
     // No transfers in progress, sleep
     if (_transferringTextures.empty()) {
-#ifdef THREADED_TEXTURE_TRANSFER
         QThread::usleep(1);
-#endif
         return true;
     }
 
@@ -152,11 +135,7 @@ bool GLTextureTransferHelper::process() {
         qDebug() << "Texture list " << _transferringTextures.size();
     }
 
-    size_t transferCount = 0;
-    for (_textureIterator = _transferringTextures.begin(); _textureIterator != _transferringTextures.end();) {
-        if (++transferCount > MAX_TRANSFERS_PER_PASS) {
-            break;
-        }
+    for (auto _textureIterator = _transferringTextures.begin(); _textureIterator != _transferringTextures.end();) {
         auto texture = *_textureIterator;
         GLTexture* gltexture = Backend::getGPUObject<GLTexture>(*texture);
         if (gltexture->continueTransfer()) {
@@ -165,9 +144,9 @@ bool GLTextureTransferHelper::process() {
         }
 
         gltexture->finishTransfer();
-#ifdef THREADED_TEXTURE_TRANSFER
+        glNamedFramebufferTexture(_readFramebuffer, GL_COLOR_ATTACHMENT0, gltexture->_id, 0);
+        glBlitNamedFramebuffer(_readFramebuffer, _drawFramebuffer, 0, 0, 1, 1, 0, 0, 1, 1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         clientWait();
-#endif
         gltexture->_contentStamp = gltexture->_gpuObject.getDataStamp();
         gltexture->updateSize();
         gltexture->setSyncState(gpu::gl::GLSyncState::Transferred);
@@ -180,7 +159,6 @@ bool GLTextureTransferHelper::process() {
         _textureIterator = _transferringTextures.erase(_textureIterator);
     }
 
-#ifdef THREADED_TEXTURE_TRANSFER
     if (!_transferringTextures.empty()) {
         // Don't saturate the GPU
         clientWait();
@@ -188,7 +166,8 @@ bool GLTextureTransferHelper::process() {
         // Don't saturate the CPU
         QThread::msleep(1);
     }
+#else
+    QThread::msleep(1);
 #endif
-
     return true;
 }

@@ -19,8 +19,7 @@ class FileUtils {
 public:
     static void locateFile(QString fileName);
     static QString standardPath(QString subfolder);
-    static QString readFile(const QString& filename);
-    static QStringList readLines(const QString& filename, QString::SplitBehavior splitBehavior = QString::KeepEmptyParts);
+
 };
 
 #endif // hifi_FileUtils_h

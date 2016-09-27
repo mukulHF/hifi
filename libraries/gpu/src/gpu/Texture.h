@@ -389,8 +389,6 @@ public:
     
     uint16 usedMipLevels() const { return (_maxMip - _minMip) + 1; }
 
-    const std::string& source() const { return _source; }
-    void setSource(const std::string& source) { _source = source; }
     bool setMinMip(uint16 newMinMip);
     bool incremementMinMip(uint16 count = 1);
 
@@ -452,8 +450,6 @@ public:
     const GPUObjectPointer gpuObject {};
 
 protected:
-    // Not strictly necessary, but incredibly useful for debugging
-    std::string _source;
     std::unique_ptr< Storage > _storage;
 
     Stamp _stamp = 0;

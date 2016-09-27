@@ -35,7 +35,8 @@
 #include "ModelNetworkingLogging.h"
 
 TextureCache::TextureCache() {
-    setUnusedResourceCacheSize(0);
+    const qint64 TEXTURE_DEFAULT_UNUSED_MAX_SIZE = DEFAULT_UNUSED_MAX_SIZE;
+    setUnusedResourceCacheSize(TEXTURE_DEFAULT_UNUSED_MAX_SIZE);
     setObjectName("TextureCache");
 
     // Expose enum Type to JS/QML via properties
@@ -117,7 +118,6 @@ const unsigned char OPAQUE_BLACK[] = { 0x00, 0x00, 0x00, 0xFF };
 const gpu::TexturePointer& TextureCache::getWhiteTexture() {
     if (!_whiteTexture) {
         _whiteTexture = gpu::TexturePointer(gpu::Texture::create2D(gpu::Element::COLOR_RGBA_32, 1, 1));
-        _whiteTexture->setSource("TextureCache::_whiteTexture");
         _whiteTexture->assignStoredMip(0, _whiteTexture->getTexelFormat(), sizeof(OPAQUE_WHITE), OPAQUE_WHITE);
     }
     return _whiteTexture;
@@ -126,7 +126,6 @@ const gpu::TexturePointer& TextureCache::getWhiteTexture() {
 const gpu::TexturePointer& TextureCache::getGrayTexture() {
     if (!_grayTexture) {
         _grayTexture = gpu::TexturePointer(gpu::Texture::create2D(gpu::Element::COLOR_RGBA_32, 1, 1));
-        _grayTexture->setSource("TextureCache::_grayTexture");
         _grayTexture->assignStoredMip(0, _whiteTexture->getTexelFormat(), sizeof(OPAQUE_WHITE), OPAQUE_GRAY);
     }
     return _grayTexture;
@@ -135,7 +134,6 @@ const gpu::TexturePointer& TextureCache::getGrayTexture() {
 const gpu::TexturePointer& TextureCache::getBlueTexture() {
     if (!_blueTexture) {
         _blueTexture = gpu::TexturePointer(gpu::Texture::create2D(gpu::Element::COLOR_RGBA_32, 1, 1));
-        _blueTexture->setSource("TextureCache::_blueTexture");
         _blueTexture->assignStoredMip(0, _blueTexture->getTexelFormat(), sizeof(OPAQUE_BLUE), OPAQUE_BLUE);
     }
     return _blueTexture;
@@ -144,7 +142,6 @@ const gpu::TexturePointer& TextureCache::getBlueTexture() {
 const gpu::TexturePointer& TextureCache::getBlackTexture() {
     if (!_blackTexture) {
         _blackTexture = gpu::TexturePointer(gpu::Texture::create2D(gpu::Element::COLOR_RGBA_32, 1, 1));
-        _blackTexture->setSource("TextureCache::_blackTexture");
         _blackTexture->assignStoredMip(0, _whiteTexture->getTexelFormat(), sizeof(OPAQUE_BLACK), OPAQUE_BLACK);
     }
     return _blackTexture;

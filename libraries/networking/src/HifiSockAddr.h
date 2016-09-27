@@ -91,6 +91,9 @@ namespace std {
     };
 }
 
+
+QHostAddress getGuessedLocalAddress();
+
 Q_DECLARE_METATYPE(HifiSockAddr);
 
 #endif // hifi_HifiSockAddr_h

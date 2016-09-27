@@ -20,7 +20,7 @@
 #include <QCheckBox>
 #include <QSyntaxHighlighter>
 
-#include <shared/AbstractLoggerInterface.h>
+#include "AbstractLoggerInterface.h"
 
 class KeywordHighlighter : public QSyntaxHighlighter {
     Q_OBJECT

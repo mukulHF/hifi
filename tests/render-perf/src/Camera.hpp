@@ -14,10 +14,9 @@ protected:
 
 public:
     glm::quat getOrientation() const {
-        return glm::angleAxis(yawPitch.x, Vectors::UP) * glm::angleAxis(yawPitch.y, Vectors::RIGHT);
+        return glm::angleAxis(yaw, Vectors::UP);
     }
-
-    vec2 yawPitch { 0 };
+    float yaw { 0 };
     glm::vec3 position;
     float rotationSpeed { 1.0f };
     float movementSpeed { 1.0f };
@@ -77,12 +76,7 @@ public:
     };
 
     void rotate(const float delta) {
-        yawPitch.x += delta;
-        updateViewMatrix();
-    }
-
-    void rotate(const glm::vec2& delta) {
-        yawPitch += delta;
+        yaw += delta;
         updateViewMatrix();
     }
 
@@ -90,11 +84,7 @@ public:
         glm::vec3 f = rotation * Vectors::UNIT_NEG_Z;
         f.y = 0;
         f = glm::normalize(f);
-        yawPitch.x = angleBetween(Vectors::UNIT_NEG_Z, f);
-        f = rotation * Vectors::UNIT_NEG_Z;
-        f.x = 0;
-        f = glm::normalize(f);
-        yawPitch.y = angleBetween(Vectors::UNIT_NEG_Z, f);
+        yaw = angleBetween(Vectors::UNIT_NEG_Z, f);
         updateViewMatrix();
     }
 

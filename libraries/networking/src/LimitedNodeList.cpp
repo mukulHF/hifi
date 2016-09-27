@@ -25,7 +25,6 @@
 #include <tbb/parallel_for.h>
 
 #include <LogHandler.h>
-#include <shared/NetworkUtils.h>
 #include <NumericalConstants.h>
 #include <SettingHandle.h>
 #include <SharedUtil.h>
