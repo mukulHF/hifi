@@ -4236,12 +4236,6 @@ void Application::updateDialogs(float deltaTime) const {
     PerformanceWarning warn(showWarnings, "Application::updateDialogs()");
     auto dialogsManager = DependencyManager::get<DialogsManager>();
 
-    // Update bandwidth dialog, if any
-    BandwidthDialog* bandwidthDialog = dialogsManager->getBandwidthDialog();
-    if (bandwidthDialog) {
-        bandwidthDialog->update();
-    }
-
     QPointer<OctreeStatsDialog> octreeStatsDialog = dialogsManager->getOctreeStatsDialog();
     if (octreeStatsDialog) {
         octreeStatsDialog->update();
@@ -5192,6 +5186,7 @@ void Application::updateWindowTitle() const {
 #endif
     _window->setWindowTitle(title);
 }
+
 void Application::clearDomainOctreeDetails() {
 
     // if we're about to quit, we really don't need to do any of these things...
@@ -5221,6 +5216,12 @@ void Application::clearDomainOctreeDetails() {
     skyStage->setBackgroundMode(model::SunSkyStage::SKY_DEFAULT);
 
     _recentlyClearedDomain = true;
+
+    DependencyManager::get<AvatarManager>()->clearOtherAvatars();
+    DependencyManager::get<AnimationCache>()->clearUnusedResources();
+    DependencyManager::get<ModelCache>()->clearUnusedResources();
+    DependencyManager::get<SoundCache>()->clearUnusedResources();
+    DependencyManager::get<TextureCache>()->clearUnusedResources();
 }
 
 void Application::domainChanged(const QString& domainHostname) {
