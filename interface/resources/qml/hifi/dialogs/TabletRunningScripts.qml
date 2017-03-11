@@ -1,8 +1,8 @@
 //
 //  RunningScripts.qml
 //
-//  Created by Bradley Austin Davis on 12 Jan 2016
-//  Copyright 2016 High Fidelity, Inc.
+//  Created by Dante Ruiz Davis on 10 March 2017
+//  Copyright 2017 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
@@ -27,6 +27,9 @@ Rectangle {
     property var scriptsModel: scripts.scriptsModelFilter
     property var runningScriptsModel: ListModel { }
     property bool isHMD: false
+    property bool keyboardEnabled: false
+    property bool keyboardRaised: false
+    property bool punctuationMode: false
 
     color: hifi.colors.baseGray
 
@@ -80,6 +83,10 @@ Rectangle {
 
     Column {
         width: parent.width
+
+        anchors: {
+            bottom: keyboard.top
+        }
         HifiControls.TabletContentSection {
             name: "Currently Running"
             isFirst: true
@@ -338,6 +345,29 @@ Rectangle {
                 height: hifi.dimensions.controlInterlineHeight - 3
                 visible: !isHMD
             }
+
+        }
+    }
+
+    HifiControls.Keyboard {
+        id: keyboard
+        raised: true//parent.keyboardEnabled && parent.keyboardRaised
+        numeric: parent.punctuationMode
+        
+        anchors {
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+        }
+    }
+
+    Component.onComplete: {
+        keyboardEnabled = HMD.active;
+    }
+
+    onKeyboardRaisedChanged: {
+        if (keyboardEnabled && keyboardRaised) {
+           
         }
     }
 }
