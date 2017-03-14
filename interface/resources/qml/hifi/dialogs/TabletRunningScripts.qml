@@ -83,10 +83,10 @@ Rectangle {
 
     Column {
         width: parent.width
-
-        anchors: {
+        anchors {
             bottom: keyboard.top
         }
+
         HifiControls.TabletContentSection {
             name: "Currently Running"
             isFirst: true
@@ -268,6 +268,16 @@ Rectangle {
                 placeholderText: "Filter"
                 onTextChanged: scriptsModel.filterRegExp =  new RegExp("^.*" + text + ".*$", "i")
                 Component.onCompleted: scriptsModel.filterRegExp = new RegExp("^.*$", "i")
+
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        parent.forceActiveFocus();
+                        root.keyboardEnabled = HMD.active
+                        tabletRoot.playButtonClickSound();
+                    }
+                }
             }
 
             HifiControls.VerticalSpacer {
@@ -351,9 +361,10 @@ Rectangle {
 
     HifiControls.Keyboard {
         id: keyboard
-        raised: true//parent.keyboardEnabled && parent.keyboardRaised
+
+        raised: true
         numeric: parent.punctuationMode
-        
+
         anchors {
             bottom: parent.bottom
             left: parent.left
@@ -361,14 +372,7 @@ Rectangle {
         }
     }
 
-    Component.onComplete: {
-        keyboardEnabled = HMD.active;
-    }
-
     onKeyboardRaisedChanged: {
-        if (keyboardEnabled && keyboardRaised) {
-           
-        }
     }
 }
 
