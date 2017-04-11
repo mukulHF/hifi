@@ -16,7 +16,7 @@ static const QString QML_WEB_ENGINE_NAME = "qmlTabletWebEngine";
 
 HFTabletWebEngineProfile::HFTabletWebEngineProfile(QObject* parent) : QQuickWebEngineProfile(parent) {
 
-    static const QString WEB_ENGINE_USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Mobile Safari/537.36";
+    static const QString WEB_ENGINE_USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Mobile Safari/537.36 (HighFidelityInterface)";
 
     setHttpUserAgent(WEB_ENGINE_USER_AGENT);
 
