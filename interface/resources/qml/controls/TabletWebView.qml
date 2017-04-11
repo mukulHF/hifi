@@ -35,10 +35,13 @@ Item {
         height: headerHeight
         spacing: 4
         anchors.top: parent.top
-        anchors.topMargin: 8
+        //anchors.topMargin: 4
         anchors.left: parent.left
         anchors.leftMargin: 8
         HiFiGlyphs {
+            anchors {
+                verticalCenter: buttons.verticalCenter
+            }
             id: back;
             enabled: currentPage > 0
             text: hifi.glyphs.backward
@@ -48,6 +51,9 @@ Item {
         }
         
         HiFiGlyphs {
+            anchors {
+                verticalCenter: buttons.verticalCenter
+            }
             id: forward;
             enabled: currentPage < pagesModel.count - 1
             text: hifi.glyphs.forward
@@ -57,6 +63,9 @@ Item {
         }
         
         HiFiGlyphs {
+            anchors {
+                verticalCenter: buttons.verticalCenter
+            }
             id: reload;
             enabled: view != null;
             text: (view !== null && view.loading) ? hifi.glyphs.close : hifi.glyphs.reload
@@ -67,7 +76,7 @@ Item {
         
     }
 
-    TextField {
+    HiFiControls.TextField {
         id: addressBar
         height: 30
         anchors.right: parent.right
@@ -75,6 +84,7 @@ Item {
         anchors.left: buttons.right
         anchors.leftMargin: 0
         anchors.verticalCenter: buttons.verticalCenter
+        colorScheme: hifi.colorScheme.light
         focus: true
         text: address
         Component.onCompleted: ScriptDiscoveryService.scriptsModelFilter.filterRegExp = new RegExp("^.*$", "i")
@@ -168,6 +178,7 @@ Item {
             if (loader.status === Loader.Ready) {
                 currentView = item.webView
                 item.webView.userScriptUrl = web.scriptURL
+                item.eventBridge = root.eventBridge;
                 if (currentPage >= 0) {
                     //we got something to load already
                     item.url = pagesModel.get(currentPage).webUrl
@@ -177,6 +188,17 @@ Item {
         }
     }
 
+    HiFiControls.Keyboard {
+        id: keyboard
+        raised: web.keyboardEnabled && web.keyboardRaised
+        numeric: web.puntuationMode
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
+
+    }
     Component.onCompleted: {
         web.isDesktop = (typeof desktop !== "undefined");
         address = url;
