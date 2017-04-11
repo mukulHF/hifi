@@ -42,7 +42,7 @@ Item {
                 verticalCenter: buttons.verticalCenter
             }
             id: back;
-            enabled: currentPage > 0
+            enabled: currentPage >= 0
             text: hifi.glyphs.backward
             color: enabled ? hifistyles.colors.text : hifistyles.colors.disabledText
             size: 48
@@ -116,6 +116,8 @@ Item {
     function goBack() {
         if (currentPage > 0) {
             currentPage--;
+        } else if (parentStackItem) {
+            parentStackItem.pop();
         }
     }
 
