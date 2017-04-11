@@ -35,7 +35,6 @@ Item {
         height: headerHeight
         spacing: 4
         anchors.top: parent.top
-        //anchors.topMargin: 4
         anchors.left: parent.left
         anchors.leftMargin: 8
         HiFiGlyphs {
