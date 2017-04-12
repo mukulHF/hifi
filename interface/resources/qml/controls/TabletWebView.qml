@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import QtWebEngine 1.2
+import QtWebEngine 1.1
 import QtWebChannel 1.0
 import "../controls-uit" as HiFiControls
 import "../styles" as HifiStyles
@@ -18,7 +18,7 @@ Item {
     property string address: url //for compatibility
     property string scriptURL
     property alias eventBridge: eventBridgeWrapper.eventBridge
-    property bool keyboardEnabled: HMD.active
+    property bool keyboardEnabled: false
     property bool keyboardRaised: false
     property bool punctuationMode: false
     property bool isDesktop: false
@@ -178,6 +178,7 @@ Item {
                     item.url = pagesModel.get(currentPage).webUrl
                     web.address = loader.item.url
                 }
+                web.keyboardEnabled = HMD.active;
             }
         }
     }
@@ -191,7 +192,7 @@ Item {
     HiFiControls.Keyboard {
         id: keyboard
         raised: web.keyboardEnabled && web.keyboardRaised
-        numeric: punctuationMode
+        numeric: web.punctuationMode
         anchors {
             left: parent.left
             right: parent.right

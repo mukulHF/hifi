@@ -4,6 +4,7 @@ import QtWebChannel 1.0
 import QtWebEngine 1.2
 
 import "controls"
+import "controls-uit" as HifiControls
 import "styles" as HifiStyles
 import "styles-uit"
 import "windows"
@@ -21,6 +22,9 @@ Item {
     property alias eventBridge: eventBridgeWrapper.eventBridge
     property bool canGoBack: webview.canGoBack
     property bool canGoForward: webview.canGoForward
+    property bool keyboardEnabled: false
+    property bool keyboardRaissed: false
+    property bool punctuationMode: false
 
 
     signal loadingChanged(int status)
@@ -44,7 +48,7 @@ Item {
         x: 0
         y: 0
         width: parent.width
-        height: keyboardEnabled && keyboardRaised ? parent.height - keyboard.height : parent.height
+        height: web.keyboardEnabled && web.keyboardRaised ? parent.height - keyboard.height : parent.height
 
         profile: HFTabletWebEngineProfile {
             id: webviewTabletProfile
@@ -116,6 +120,18 @@ Item {
 
         onNewViewRequested: {
             request.openIn(webView);
+        }
+
+
+        HifiControls.Keyboard {
+            id: keyboard
+            raised: root.keyboardEnabled && root.keyboardRaised
+            numeric: root.punctuationMode
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
         }
     }
 
