@@ -36,7 +36,7 @@ StackView {
     property var tablet: null;
     property bool isDesktop: false;
 
-    Component { id: tabletStoryCard; TabletStoryCard {} }
+    Component { id: tabletStoryCard; TabletStoryCard { eventBridge: root.eventBridge } }
     Component.onCompleted: {
         root.currentItem.focus = true;
         root.currentItem.forceActiveFocus();
@@ -70,7 +70,6 @@ StackView {
         if (0 !== targetString.indexOf('hifi://')) {
             var card = tabletStoryCard.createObject();
             card.setUrl(addressBarDialog.metaverseServerUrl + targetString);
-            card.eventBridge = root.eventBridge;
             root.push(card);
             return;
         }

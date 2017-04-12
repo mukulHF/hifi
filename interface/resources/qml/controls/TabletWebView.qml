@@ -109,6 +109,8 @@ Item {
             currentPage--;
         } else if (parentStackItem) {
             parentStackItem.pop();
+        } else {
+            parent.visible = false;
         }
     }
 
@@ -170,6 +172,7 @@ Item {
             if (loader.status === Loader.Ready) {
                 currentView = item.webView
                 item.webView.userScriptUrl = web.scriptURL
+                loader.item.eventBridge = web.eventBridge
                 if (currentPage >= 0) {
                     //we got something to load already
                     item.url = pagesModel.get(currentPage).webUrl
@@ -183,6 +186,17 @@ Item {
         web.isDesktop = (typeof desktop !== "undefined");
         address = url;
         loader.active = true
+    }
+
+    HiFiControls.Keyboard {
+        id: keyboard
+        raised: web.keyboardEnabled && web.keyboardRaised
+        numeric: punctuationMode
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
     }
 
      Keys.onPressed: {
