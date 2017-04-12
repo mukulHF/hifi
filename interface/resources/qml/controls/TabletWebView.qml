@@ -75,7 +75,7 @@ Item {
         
     }
 
-    HiFiControls.TextField {
+    TextField {
         id: addressBar
         height: 30
         anchors.right: parent.right
@@ -83,7 +83,6 @@ Item {
         anchors.left: buttons.right
         anchors.leftMargin: 0
         anchors.verticalCenter: buttons.verticalCenter
-        colorScheme: hifi.colorScheme.light
         focus: true
         text: address
         Component.onCompleted: ScriptDiscoveryService.scriptsModelFilter.filterRegExp = new RegExp("^.*$", "i")
