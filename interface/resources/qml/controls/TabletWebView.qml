@@ -191,7 +191,7 @@ Item {
     HiFiControls.Keyboard {
         id: keyboard
         raised: web.keyboardEnabled && web.keyboardRaised
-        numeric: web.puntuationMode
+        numeric: punctuationMode
         anchors {
             left: parent.left
             right: parent.right
