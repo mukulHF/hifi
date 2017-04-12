@@ -48,10 +48,6 @@ StackView {
         center();
         isDesktop = (typeof desktop !== "undefined");
         tablet = Tablet.getTablet("com.highfidelity.interface.tablet.system");
-
-        if (desktop) {
-            root.title = "GOTO";
-        }
     }
     Component.onDestruction: {
         root.parentChanged.disconnect(center);
