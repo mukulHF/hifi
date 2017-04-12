@@ -117,6 +117,8 @@ Item {
             currentPage--;
         } else if (parentStackItem) {
             parentStackItem.pop();
+        } else {
+            parent.visible = false;
         }
     }
 
