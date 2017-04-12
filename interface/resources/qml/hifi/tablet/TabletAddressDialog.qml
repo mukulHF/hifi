@@ -61,7 +61,7 @@ StackView {
         // Explicitly center in order to avoid warnings at shutdown
         anchors.centerIn = parent;
     }
- 
+
 
      function resetAfterTeleport() {
         //storyCardFrame.shown = root.shown = false;
