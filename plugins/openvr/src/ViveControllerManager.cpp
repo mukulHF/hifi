@@ -187,6 +187,8 @@ void ViveControllerManager::InputDevice::update(float deltaTime, const controlle
     auto leftHandDeviceIndex = _system->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand);
     auto rightHandDeviceIndex = _system->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_RightHand);
 
+    _rightHandController = rightHandDeviceIndex;
+    _leftHandController = leftHandDeviceIndex;
     handleHandController(deltaTime, leftHandDeviceIndex, inputCalibrationData, true);
     handleHandController(deltaTime, rightHandDeviceIndex, inputCalibrationData, false);
 
@@ -194,6 +196,9 @@ void ViveControllerManager::InputDevice::update(float deltaTime, const controlle
     for (int i = 0; i < vr::k_unMaxTrackedDeviceCount; i++) {
         handleTrackedObject(i, inputCalibrationData);
         handleHmd(i, inputCalibrationData);
+        if (i != _leftHandController || i != _rightHandController) {
+            handleExtraHandControllers(i, inputCalibrationData);
+        }
     }
 
     // handle haptics
@@ -238,17 +243,59 @@ void ViveControllerManager::InputDevice::update(float deltaTime, const controlle
 
 void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceIndex, const controller::InputCalibrationData& inputCalibrationData) {
     uint32_t poseIndex = controller::TRACKED_OBJECT_00 + deviceIndex;
-    printDeviceTrackingResultChange(deviceIndex);
+
     if (_system->IsTrackedDeviceConnected(deviceIndex) &&
         _system->GetTrackedDeviceClass(deviceIndex) == vr::TrackedDeviceClass_GenericTracker &&
         _nextSimPoseData.vrPoses[deviceIndex].bPoseIsValid &&
         poseIndex <= controller::TRACKED_OBJECT_15) {
-
+        
+        printDeviceTrackingResultChange(deviceIndex);
         mat4& mat = mat4();
         vec3 linearVelocity = vec3();
         vec3 angularVelocity = vec3();
         // check if the device is tracking out of range, then process the correct pose depending on the result.
         if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult != vr::TrackingResult_Running_OutOfRange) {
+            mat = _nextSimPoseData.poses[deviceIndex];
+            linearVelocity = _nextSimPoseData.linearVelocities[deviceIndex];
+            angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];
+        } else {
+            mat = _lastSimPoseData.poses[deviceIndex];
+            linearVelocity = _lastSimPoseData.linearVelocities[deviceIndex];
+            angularVelocity = _lastSimPoseData.angularVelocities[deviceIndex];
+
+            // make sure that we do not overwrite the pose in the _lastSimPose with incorrect data.
+            _nextSimPoseData.poses[deviceIndex] = _lastSimPoseData.poses[deviceIndex];
+            _nextSimPoseData.linearVelocities[deviceIndex] = _lastSimPoseData.linearVelocities[deviceIndex];
+            _nextSimPoseData.angularVelocities[deviceIndex] = _lastSimPoseData.angularVelocities[deviceIndex];
+
+        }
+
+        controller::Pose pose(extractTranslation(mat), glmExtractRotation(mat), linearVelocity, angularVelocity);
+
+        // transform into avatar frame
+        glm::mat4 controllerToAvatar = glm::inverse(inputCalibrationData.avatarMat) * inputCalibrationData.sensorToWorldMat;
+        _poseStateMap[poseIndex] = pose.transform(controllerToAvatar);
+        _validTrackedObjects.push_back(std::make_pair(poseIndex, _poseStateMap[poseIndex]));
+    } else {
+        controller::Pose invalidPose;
+        _poseStateMap[poseIndex] = invalidPose;
+    }
+}
+
+void ViveControllerManager::InputDevice::handleExtraHandControllers(uint32_t deviceIndex, const controller::InputCalibrationData& inputCalibrationData) {
+    uint32_t poseIndex = controller::TRACKED_OBJECT_00 +  deviceIndex;
+    
+    if (_system->IsTrackedDeviceConnected(deviceIndex) &&
+        _system->GetTrackedDeviceClass(deviceIndex) == vr::TrackedDeviceClass_Controller &&
+        _nextSimPoseData.vrPoses[deviceIndex].bPoseIsValid &&
+        poseIndex <= controller::TRACKED_OBJECT_15) {
+
+        printDeviceTrackingResultChange(deviceIndex);
+        mat4& mat = mat4();
+        vec3 linearVelocity = vec3();
+        vec3 angularVelocity = vec3();
+        // check if the device is tracking out of range, then process the correct pose depending on the result.
+        if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult != vr::TrackingResult_Running_OK) {
             mat = _nextSimPoseData.poses[deviceIndex];
             linearVelocity = _nextSimPoseData.linearVelocities[deviceIndex];
             angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];

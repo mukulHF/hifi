@@ -70,6 +70,7 @@ private:
         void handleHandController(float deltaTime, uint32_t deviceIndex, const controller::InputCalibrationData& inputCalibrationData, bool isLeftHand);
         void handleHmd(uint32_t deviceIndex, const controller::InputCalibrationData& inputCalibrationData);
         void handleTrackedObject(uint32_t deviceIndex, const controller::InputCalibrationData& inputCalibrationData);
+        void handleExtraHandControllers(uint32_t deviceIndex, const controller::InputCalibrationData& inputCalibrationData);
         void handleButtonEvent(float deltaTime, uint32_t button, bool pressed, bool touched, bool isLeftHand);
         void handleAxisEvent(float deltaTime, uint32_t axis, float x, float y, bool isLeftHand);
         void handlePoseEvent(float deltaTime, const controller::InputCalibrationData& inputCalibrationData, const mat4& mat,
@@ -111,6 +112,8 @@ private:
         std::vector<std::pair<uint32_t, controller::Pose>> _validTrackedObjects;
         std::map<uint32_t, glm::mat4> _pucksOffset;
         std::map<int, uint32_t> _jointToPuckMap;
+        uint32_t _leftHandController { 0 };
+        uint32_t _rightHandConroller { 0 };
         std::map<Config, QString> _configStringMap;
         PoseData _lastSimPoseData;
         // perform an action when the InputDevice mutex is acquired.
