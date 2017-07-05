@@ -405,11 +405,15 @@ void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceInde
         vec3 linearVelocity = vec3();
         vec3 angularVelocity = vec3();
         // check if the device is tracking out of range, then process the correct pose depending on the result.
-        if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult != vr::TrackingResult_Running_OutOfRange) {
+        if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult == vr::TrackingResult_Running_OK) {
             mat = _nextSimPoseData.poses[deviceIndex];
             linearVelocity = _nextSimPoseData.linearVelocities[deviceIndex];
             angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];
         } else {
+            controller::Pose invalidPose;
+            _poseStateMap[poseIndex] = invalidPose;
+            return;
+            /*
             mat = _lastSimPoseData.poses[deviceIndex];
             linearVelocity = _lastSimPoseData.linearVelocities[deviceIndex];
             angularVelocity = _lastSimPoseData.angularVelocities[deviceIndex];
@@ -417,7 +421,7 @@ void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceInde
             // make sure that we do not overwrite the pose in the _lastSimPose with incorrect data.
             _nextSimPoseData.poses[deviceIndex] = _lastSimPoseData.poses[deviceIndex];
             _nextSimPoseData.linearVelocities[deviceIndex] = _lastSimPoseData.linearVelocities[deviceIndex];
-            _nextSimPoseData.angularVelocities[deviceIndex] = _lastSimPoseData.angularVelocities[deviceIndex];
+            _nextSimPoseData.angularVelocities[deviceIndex] = _lastSimPoseData.angularVelocities[deviceIndex];*/
 
         }
 
@@ -645,7 +649,13 @@ void ViveControllerManager::InputDevice::handleHandController(float deltaTime, u
         const mat4& mat = _nextSimPoseData.poses[deviceIndex];
         const vec3 linearVelocity = _nextSimPoseData.linearVelocities[deviceIndex];
         const vec3 angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];
-        handlePoseEvent(deltaTime, inputCalibrationData, mat, linearVelocity, angularVelocity, isLeftHand);
+
+        if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult == vr::TrackingResult_Running_OK) {
+            handlePoseEvent(deltaTime, inputCalibrationData, mat, linearVelocity, angularVelocity, isLeftHand);
+        } else {
+            controller::Pose invalidPose;
+            _poseStateMap[isLeftHand ? controller::LEFT_HAND : controller::RIGHT_HAND] = invalidPose;
+        }
 
         vr::VRControllerState_t controllerState = vr::VRControllerState_t();
         if (_system->GetControllerState(deviceIndex, &controllerState, sizeof(vr::VRControllerState_t))) {
