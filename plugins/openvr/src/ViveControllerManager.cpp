@@ -445,7 +445,7 @@ void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceInde
         vec3 linearVelocity = vec3();
         vec3 angularVelocity = vec3();
         // check if the device is tracking out of range, then process the correct pose depending on the result.
-        if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult == vr::TrackingResult_Running_OK) {
+        if (_nextSimPoseData.vrPoses[deviceIndex].eTrackingResult == vr::TrackingResult_Running_OK || _nextSimPoseData.vrPoses[deviceIndex].eTrackingResult == vr::TrackingResult_Calibrating_OutOfRange || _nextSimPoseData.vrPoses[deviceIndex].eTrackingResult == vr::TrackingResult_Calibrating_InProgress) {
             mat = _nextSimPoseData.poses[deviceIndex];
             linearVelocity = _nextSimPoseData.linearVelocities[deviceIndex];
             angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];
