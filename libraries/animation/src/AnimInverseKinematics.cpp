@@ -23,7 +23,7 @@
 #include "CubicHermiteSpline.h"
 #include "AnimUtil.h"
 
-static const float JOINT_CHAIN_INTERP_TIME = 0.25f;
+static const float JOINT_CHAIN_INTERP_TIME = 0.4f;
 
 static void lookupJointInfo(const AnimInverseKinematics::JointChainInfo& jointChainInfo,
                                  int indexA, int indexB,
