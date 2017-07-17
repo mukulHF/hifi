@@ -450,15 +450,8 @@ void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceInde
             linearVelocity = _nextSimPoseData.linearVelocities[deviceIndex];
             angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];
         } else {
-            mat = _lastSimPoseData.poses[deviceIndex];
-            linearVelocity = _lastSimPoseData.linearVelocities[deviceIndex];
-            angularVelocity = _lastSimPoseData.angularVelocities[deviceIndex];
-
-            // make sure that we do not overwrite the pose in the _lastSimPose with incorrect data.
-            _nextSimPoseData.poses[deviceIndex] = _lastSimPoseData.poses[deviceIndex];
-            _nextSimPoseData.linearVelocities[deviceIndex] = _lastSimPoseData.linearVelocities[deviceIndex];
-            _nextSimPoseData.angularVelocities[deviceIndex] = _lastSimPoseData.angularVelocities[deviceIndex];
-
+            controller::Pose invalidPose;
+            _poseStateIndex[poseIndex] = invalidPose;
         }
 
         controller::Pose pose(extractTranslation(mat), glmExtractRotation(mat), linearVelocity, angularVelocity);
