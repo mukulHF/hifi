@@ -451,7 +451,7 @@ void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceInde
             angularVelocity = _nextSimPoseData.angularVelocities[deviceIndex];
         } else {
             controller::Pose invalidPose;
-            _poseStateIndex[poseIndex] = invalidPose;
+            _poseStateMap[poseIndex] = invalidPose;
             return;
         }
 
