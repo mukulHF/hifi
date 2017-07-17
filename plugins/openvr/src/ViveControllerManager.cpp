@@ -452,6 +452,7 @@ void ViveControllerManager::InputDevice::handleTrackedObject(uint32_t deviceInde
         } else {
             controller::Pose invalidPose;
             _poseStateIndex[poseIndex] = invalidPose;
+            return;
         }
 
         controller::Pose pose(extractTranslation(mat), glmExtractRotation(mat), linearVelocity, angularVelocity);
