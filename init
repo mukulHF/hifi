@@ -1,0 +1,8 @@
+./libraries/input-plugins/src/input-plugins/InputPlugin.cpp:        inputPlugin->saveSettings();
+./libraries/plugins/src/plugins/PluginManager.cpp:                    if (inputPlugin->isSupported()) {
+./libraries/plugins/src/plugins/PluginManager.cpp:        if (inputPlugin->isActive()) {
+./libraries/plugins/src/plugins/PluginManager.cpp:            inputPlugin->deactivate();
+./libraries/plugins/src/plugins/PluginUtils.cpp:        if (inputPlugin->isHeadController() && (pluginName.isEmpty() || inputPlugin->getName() == pluginName)) {
+./libraries/plugins/src/plugins/PluginUtils.cpp:        if (inputPlugin->isHandController() && (pluginName.isEmpty() || inputPlugin->getName() == pluginName)) {
+./libraries/plugins/src/plugins/PluginUtils.cpp:        if (inputPlugin->isActive()) {
+./libraries/plugins/src/plugins/PluginUtils.cpp:            auto subdeviceNames = inputPlugin->getSubdeviceNames();
