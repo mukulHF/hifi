@@ -244,7 +244,9 @@ QUuid EntityScriptingInterface::addEntity(const EntityItemProperties& properties
     // queue the packet
     if (success) {
         emit debitEnergySource(cost);
-        queueEntityMessage(PacketType::EntityAdd, id, propertiesWithSimID);
+        _entityTree->withWriteLock([&] {
+            queueEntityMessage(PacketType::EntityAdd, id, propertiesWithSimID);
+        });
 
         return id;
     } else {
@@ -399,7 +401,7 @@ QUuid EntityScriptingInterface::editEntity(QUuid id, const EntityItemProperties&
     // }
 
     bool entityFound { false };
-    _entityTree->withReadLock([&] {
+    _entityTree->withWriteLock([&] {
         EntityItemPointer entity = _entityTree->findEntityByEntityItemID(entityID);
         if (entity) {
             entityFound = true;
@@ -478,7 +480,7 @@ QUuid EntityScriptingInterface::editEntity(QUuid id, const EntityItemProperties&
     }
     // we queue edit packets even if we don't know about the entity.  This is to allow AC agents
     // to edit entities they know only by ID.
-    _entityTree->withReadLock([&] {
+    _entityTree->withWriteLock([&] {
         queueEntityMessage(PacketType::EntityEdit, entityID, properties);
     });
     return id;
@@ -1025,8 +1027,9 @@ bool EntityScriptingInterface::setPoints(QUuid entityID, std::function<bool(Line
 
     properties.setLinePointsDirty();
     properties.setLastEdited(now);
-
-    queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+    _entityTree->withWriteLock([&] {
+        queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+    });
     return success;
 }
 
@@ -1160,7 +1163,9 @@ bool EntityScriptingInterface::actionWorker(const QUuid& entityID,
         properties.setActionDataDirty();
         auto now = usecTimestampNow();
         properties.setLastEdited(now);
-        queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+        _entityTree->withWriteLock([&] {
+            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+        });
     }
 
     return doTransmit;
@@ -1340,7 +1345,9 @@ bool EntityScriptingInterface::setAbsoluteJointTranslationInObjectFrame(const QU
 
             properties.setJointTranslationsDirty();
             properties.setLastEdited(now);
-            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            _entityTree->withWriteLock([&] {
+                queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            });
             return true;
         }
     }
@@ -1362,7 +1369,9 @@ bool EntityScriptingInterface::setAbsoluteJointRotationInObjectFrame(const QUuid
 
             properties.setJointRotationsDirty();
             properties.setLastEdited(now);
-            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            _entityTree->withWriteLock([&] {
+                queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            });
             return true;
         }
     }
@@ -1401,7 +1410,9 @@ bool EntityScriptingInterface::setLocalJointTranslation(const QUuid& entityID, i
 
             properties.setJointTranslationsDirty();
             properties.setLastEdited(now);
-            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            _entityTree->withWriteLock([&] {
+                queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            });
             return true;
         }
     }
@@ -1422,7 +1433,9 @@ bool EntityScriptingInterface::setLocalJointRotation(const QUuid& entityID, int 
 
             properties.setJointRotationsDirty();
             properties.setLastEdited(now);
-            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            _entityTree->withWriteLock([&] {
+                queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            });
             return true;
         }
     }
@@ -1450,7 +1463,9 @@ bool EntityScriptingInterface::setLocalJointRotations(const QUuid& entityID, con
 
             properties.setJointRotationsDirty();
             properties.setLastEdited(now);
-            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            _entityTree->withWriteLock([&] {
+                queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            });
             return true;
         }
     }
@@ -1477,7 +1492,9 @@ bool EntityScriptingInterface::setLocalJointTranslations(const QUuid& entityID, 
 
             properties.setJointTranslationsDirty();
             properties.setLastEdited(now);
-            queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            _entityTree->withWriteLock([&] {
+                queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+            });
             return true;
         }
     }
