@@ -478,7 +478,9 @@ QUuid EntityScriptingInterface::editEntity(QUuid id, const EntityItemProperties&
     }
     // we queue edit packets even if we don't know about the entity.  This is to allow AC agents
     // to edit entities they know only by ID.
-    queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+    _entityTree->withReadLock([&] {
+        queueEntityMessage(PacketType::EntityEdit, entityID, properties);
+    });
     return id;
 }
 
