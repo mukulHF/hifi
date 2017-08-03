@@ -5990,16 +5990,25 @@ bool Application::askToLoadScript(const QString& scriptFilenameOrURL) {
         shortName = shortName.mid(startIndex, endIndex - startIndex);
     }
 
+
+    auto offscreenUi = DependencyManager::get<OffscreenUi>();
+    auto callback = [=] (QMessageBox::StandardButton answer) {
+        const QString& fileName = scriptFilenameOrURL;
+        if (answer == QMessageBox::Yes) {
+            qCDebug(interfaceapp) << "Chose to run the script: " << fileName;
+            DependencyManager::get<ScriptEngines>()->loadScript(fileName);
+        } else {
+            qCDebug(interfaceapp) << "Declined to run the script: " << scriptFilenameOrURL;
+        }
+        auto offscreenUi = DependencyManager::get<OffscreenUi>();
+        QObject::disconnect(offscreenUi.data(), &OffscreenUi::response, this, nullptr);
+    };
+
+    QObject::connect(offscreenUi.data(), &OffscreenUi::response, this, callback);
     QString message = "Would you like to run this script:\n" + shortName;
 
-    reply = OffscreenUi::question(getWindow(), "Run Script", message, QMessageBox::Yes | QMessageBox::No);
+    OffscreenUi::asyncQuestion(getWindow(), "Run Script", message, QMessageBox::Yes | QMessageBox::No);
 
-    if (reply == QMessageBox::Yes) {
-        qCDebug(interfaceapp) << "Chose to run the script: " << scriptFilenameOrURL;
-        DependencyManager::get<ScriptEngines>()->loadScript(scriptFilenameOrURL);
-    } else {
-        qCDebug(interfaceapp) << "Declined to run the script: " << scriptFilenameOrURL;
-    }
     return true;
 }
 

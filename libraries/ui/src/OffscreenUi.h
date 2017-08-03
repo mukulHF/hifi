@@ -71,6 +71,7 @@ public:
 
     // Message box compatibility
     Q_INVOKABLE QMessageBox::StandardButton messageBox(Icon icon, const QString& title, const QString& text, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
+    Q_INVOKABLE void asyncMessageBox(Icon icon, const QString& title, const QString& text, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
     // Must be called from the main thread
     QQuickItem* createMessageBox(Icon icon, const QString& title, const QString& text, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
     // Must be called from the main thread
@@ -94,6 +95,12 @@ public:
         QMessageBox::StandardButton defaultButton = QMessageBox::NoButton) {
         return question(title, text, buttons, defaultButton);
     }
+
+    static void asyncQuestion(void* ignored, const QString& title, const QString& text,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton) {
+        return asyncQuestion(title, text, buttons, defaultButton);
+    }
     /// Same design as QMessageBox::warning(), will block, returns result
     static QMessageBox::StandardButton warning(void* ignored, const QString& title, const QString& text,
         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
@@ -108,6 +115,9 @@ public:
         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
         QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
     static QMessageBox::StandardButton question(const QString& title, const QString& text,
+        QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+    static void asyncQuestion (const QString& title, const QString& text,
         QMessageBox::StandardButtons buttons = QMessageBox::Yes | QMessageBox::No,
         QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
     static QMessageBox::StandardButton warning(const QString& title, const QString& text,
@@ -156,6 +166,9 @@ public:
 
 signals:
     void showDesktop();
+    void response(QMessageBox::StandardButton response);
+public slots:
+    void removeModalDialog(QObject* modal);
 
 private:
     QString fileDialog(const QVariantMap& properties);
@@ -163,6 +176,7 @@ private:
 
     QQuickItem* _desktop { nullptr };
     QQuickItem* _toolWindow { nullptr };
+    QList<QObject*> _modalDialogListeners;
     std::unordered_map<int, bool> _pressedKeys;
     VrMenu* _vrMenu { nullptr };
     QQueue<std::function<void(VrMenu*)>> _queuedMenuInitializers; 
