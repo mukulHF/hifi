@@ -6008,8 +6008,6 @@ bool Application::askToSetAvatarUrl(const QString& url) {
 
 
 bool Application::askToLoadScript(const QString& scriptFilenameOrURL) {
-    QMessageBox::StandardButton reply;
-
     QString shortName = scriptFilenameOrURL;
 
     QUrl scriptURL { scriptFilenameOrURL };
