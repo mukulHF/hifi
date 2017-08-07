@@ -25,6 +25,7 @@ var ROT_LANDSCAPE = {x: 1.0, y: 1.0, z: 0, w: 0};
 var ROT_LANDSCAPE_WINDOW = {x: 0.0, y: 0.0, z: 0.0, w: 0};
 var TABLET_TEXTURE_RESOLUTION = { x: 480, y: 706 };
 var INCHES_TO_METERS = 1 / 39.3701;
+var minDistanceToHmd = 0.4;
 var AVATAR_SELF_ID = "{00000000-0000-0000-0000-000000000001}";
 
 var NO_HANDS = -1;
@@ -72,11 +73,19 @@ function calcSpawnInfo(hand, tabletHeight, landscape) {
             rotation = Quat.multiply(rotation, Quat.fromPitchYawRollDegrees(0, -90, 0));
         }
         var normal = Vec3.multiplyQbyV(rotation, Vec3.UNIT_NEG_Y);
-        var lookAt = Quat.lookAt(Vec3.ZERO, normal, Vec3.multiplyQbyV(MyAvatar.orientation, Vec3.UNIT_Y));
+        var lookAt = Quat.lookAt(Vec3.ZERO, normal, Vec3.multiplyQbyV(Quat.cancelOutRollAndPitch(HMD.orientation), Vec3.UNIT_Y));
         var TABLET_RAKE_ANGLE = 30;
         rotation = Quat.multiply(Quat.angleAxis(TABLET_RAKE_ANGLE, Vec3.multiplyQbyV(lookAt, Vec3.UNIT_X)), lookAt);
+        // check the distance from the head to the hand
+        var HmdPosition = HMD.position;
+        var controllerToHmdDistance = Vec3.distance(HmdPosition, position);
+        var tabletDistanceFromController = 0.1;
+        if (controllerToHmdDistance < minDistanceToHmd) {
+            var difference = minDistanceToHmd - controllerToHmdDistance;
+            tabletDistanceFromController = controllerToHmdDistance + difference;
+        }
 
-        var RELATIVE_SPAWN_OFFSET = { x: 0, y: 0.6, z: 0.1 };
+        var RELATIVE_SPAWN_OFFSET = { x: 0, y: 0.6, z: tabletDistanceFromController };
         position = Vec3.sum(position, Vec3.multiplyQbyV(rotation, Vec3.multiply(tabletHeight, RELATIVE_SPAWN_OFFSET)));
 
         return {
