@@ -72,7 +72,9 @@ var EQUIP_SPHERE_SCALE_FACTOR = 0.65;
 
 var WEB_DISPLAY_STYLUS_DISTANCE = 0.5;
 var WEB_STYLUS_LENGTH = 0.2;
-var WEB_TOUCH_Y_OFFSET = 0.05; // how far forward (or back with a negative number) to slide stylus in hand
+var WEB_TOUCH_Y_OFFSET = 0.018; // how far forward (or back with a negative number) to slide stylus in hand
+var WEB_TOUCH_X_OFFSET = 0.057;
+var WEB_TOUCH_Z_OFFSET = 0.0;
 
 //
 // distant manipulation
@@ -1174,7 +1176,8 @@ function MyController(hand) {
             this.stylusTip = getControllerWorldLocation(this.handToController(), true);
 
             // translate tip forward according to constant.
-            var TIP_OFFSET = {x: 0, y: WEB_STYLUS_LENGTH - WEB_TOUCH_Y_OFFSET, z: 0};
+            //(-WEB_STYLUS_LENGTH + WEB_TOUCH_Y_OFFSET)
+            var TIP_OFFSET = {x: 0, y: (WEB_STYLUS_LENGTH * 0.57) - WEB_TOUCH_Y_OFFSET, z: 0};
             this.stylusTip.position = Vec3.sum(this.stylusTip.position, Vec3.multiplyQbyV(this.stylusTip.orientation, TIP_OFFSET));
         }
 
@@ -1350,16 +1353,17 @@ function MyController(hand) {
         if (this.stylus) {
             return;
         }
-
+        var zAngleRotation = this.hand === RIGHT_HAND ? 45 : -45;
+        var xOffset = this.hand === RIGHT_HAND ? WEB_TOUCH_X_OFFSET : -WEB_TOUCH_X_OFFSET;
         var stylusProperties = {
             name: "stylus",
             url: Script.resourcesPath() + "meshes/tablet-stylus-fat.fbx",
             loadPriority: 10.0,
-            localPosition: Vec3.sum({ x: 0.0,
+            localPosition: Vec3.sum({ x: xOffset,
                                       y: WEB_TOUCH_Y_OFFSET,
-                                      z: 0.0 },
+                                      z: WEB_TOUCH_Z_OFFSET},
                                     getGrabPointSphereOffset(this.handToController())),
-            localRotation: Quat.fromVec3Degrees({ x: -90, y: 0, z: 0 }),
+            localRotation: Quat.fromVec3Degrees({ x: -90, y: 0, z: zAngleRotation }),
             dimensions: { x: 0.01, y: 0.01, z: WEB_STYLUS_LENGTH },
             solid: true,
             visible: true,
