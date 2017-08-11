@@ -66,18 +66,19 @@ function calcSpawnInfo(hand, tabletHeight, landscape) {
 
         var position = handController.position;
         var rotation = handController.rotation;
-
+        var RELATIVE_SPAWN_OFFSET = { x: 0.3, y: 0.0, z: 0.8 };
         if (hand === Controller.Standard.LeftHand) {
             rotation = Quat.multiply(rotation, Quat.fromPitchYawRollDegrees(0, 90, 0));
+            RELATIVE_SPAWN_OFFSET = { x: -0.3, y: 0.0, z: 0.8 };
         } else {
             rotation = Quat.multiply(rotation, Quat.fromPitchYawRollDegrees(0, -90, 0));
         }
         var normal = Vec3.multiplyQbyV(rotation, Vec3.UNIT_NEG_Y);
         var lookAt = Quat.lookAt(position, HMD.position, Vec3.multiplyQbyV(Quat.cancelOutRollAndPitch(HMD.orientation), Vec3.UNIT_Y));
         var TABLET_RAKE_ANGLE = 0;
-        rotation = Quat.multiply(Quat.angleAxis(TABLET_RAKE_ANGLE, Vec3.multiplyQbyV(lookAt, Vec3.UNIT_X)), lookAt);
+        rotation = Quat.cancelOutRoll(Quat.multiply(Quat.angleAxis(TABLET_RAKE_ANGLE, Vec3.multiplyQbyV(lookAt, Vec3.UNIT_X)), lookAt));
 	
-        var RELATIVE_SPAWN_OFFSET = { x: 0.3, y: 0.0, z: 0.8 };
+        
         position = Vec3.sum(HMD.position, Vec3.multiplyQbyV(rotation, Vec3.multiply(tabletHeight, RELATIVE_SPAWN_OFFSET)));
 
         return {
